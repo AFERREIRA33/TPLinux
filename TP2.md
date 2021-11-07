@@ -2,7 +2,7 @@
 
 Ferreira Alex B1 A
 
-[Intro](#Intro) #
+[Intro](#Intro)  
     [Changer le nom de la machine](#pr1)   
     [Config réseau fonctionnelle](#pr2)  
 [Partie 1 : Installation et configuration d'un service SSH](#p1)  
