@@ -3,9 +3,10 @@
 Ferreira Alex B1 A
 
 [Intro](#Intro)
-
+    [Changer le nom de la machine](#pr1)
+    [Config réseau fonctionnelle](#pr2)
 [Partie 1 : Installation et configuration d'un service SSH](#p1)
-
+    
 [Partie 2 : Installation et configuration d'un service FTP](#p2)
 
 [Partie 3 : Création de votre propre service](#p3)
@@ -13,21 +14,21 @@ Ferreira Alex B1 A
 
 ## Intro
 
-### Changer le nom de la machine
+### Changer le nom de la machine <a name="pr1"></a>
 
--première étape : changer le nom tout de suite, jusqu'à ce qu'on redémarre la machine
+- Première étape : changer le nom tout de suite, jusqu'à ce qu'on redémarre la machine
 
 ```bash
 xouxou@xouxou-vm:~$ sudo hostname node1.tp2.linux
 ```
--deuxième étape : changer le nom qui est pris par la machine quand elle s'allume
+- Deuxième étape : changer le nom qui est pris par la machine quand elle s'allume
 ```bash
 xouxou@xouxou-vm:~$ sudo nano /etc/hostname
 xouxou@xouxou-vm:~$ cat /etc/hostname
 node1.tp2.linux
 ```
 
-###  Config réseau fonctionnelle
+###  Config réseau fonctionnelle <a name="pr2"></a>
 
 - Depuis la VM
 ```bash
