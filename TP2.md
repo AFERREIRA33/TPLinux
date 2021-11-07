@@ -152,7 +152,69 @@ oct. 25 11:46:56 node1.tp2.linux systemd[1]: Stopping OpenBSD Secure Shell serve
 [...]
 ```
 
+### Connectez vous au serveur <a name="p14"></a>
 
+```bash
+C:\Users\xouxo>ssh xouxou@192.168.56.116
+xouxou@192.168.56.116's password:
+Welcome to Ubuntu 20.04.3 LTS (GNU/Linux 5.11.0-38-generic x86_64)
+
+ * Documentation:  https://help.ubuntu.com
+ * Management:     https://landscape.canonical.com
+ * Support:        https://ubuntu.com/advantage
+
+51 updates can be applied immediately.
+To see these additional updates run: apt list --upgradable
+
+Your Hardware Enablement Stack (HWE) is supported until April 2025.
+Last login: Mon Oct 25 11:12:07 2021 from 192.168.56.1
+xouxou@node1:~$
+```
+
+### Modifier le comportement du service <a name="p15"></a>
+
+```bash
+xouxou@node1:~$ sudo nano /etc/ssh/sshd_config
+xouxou@node1:~$ cat /etc/ssh/sshd_config
+[...]
+Port 1026
+#AddressFamily any
+#ListenAddress 0.0.0.0
+#ListenAddress ::
+[...]
+xouxou@node1:~$ sudo systemctl restart sshd
+xouxou@node1:~$ sudo systemctl restart ssh
+xouxou@node1:~$ ss -lntr
+State         Recv-Q        Send-Q               Local Address:Port               Peer Address:Port       Process
+LISTEN        0             4096                  localhost%lo:53                      0.0.0.0:*
+LISTEN        0             5                        localhost:631                     0.0.0.0:*
+LISTEN        0             128                        0.0.0.0:1026                    0.0.0.0:*
+LISTEN        0             5                    ip6-localhost:631                        [::]:*
+LISTEN        0             128                           [::]:1026                       [::]:*
+```
+
+### Connectez vous sur le nouveau port choisi
+
+```bash
+
+C:\Users\xouxo>ssh -p 1026 xouxou@192.168.56.116
+xouxou@192.168.56.116's password:
+Welcome to Ubuntu 20.04.3 LTS (GNU/Linux 5.11.0-38-generic x86_64)
+
+ * Documentation:  https://help.ubuntu.com
+ * Management:     https://landscape.canonical.com
+ * Support:        https://ubuntu.com/advantage
+
+51 updates can be applied immediately.
+To see these additional updates run: apt list --upgradable
+
+
+The list of available updates is more than a week old.
+To check for new updates run: sudo apt update
+Your Hardware Enablement Stack (HWE) is supported until April 2025.
+Last login: Wed Nov  3 15:14:57 2021 from 192.168.56.1
+xouxou@node1:~$
+```
 
 
 ## Partie 2 : Installation et configuration d'un service FTP <a name="p2"></a>
