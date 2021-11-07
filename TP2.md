@@ -12,7 +12,14 @@ Ferreira Alex B1 A
     - [Connectez vous au serveur](#p14)
     - [Modifier le comportement du service](#p15)
     - [Connectez vous sur le nouveau port choisi](#p16)
-- [Partie 2 : Installation et configuration d'un service FTP](#p2)  
+- [Partie 2 : Installation et configuration d'un service FTP](#p2)
+    - [Installer le paquet vsftpd](#p21)
+    - [Lancer le service vsftpd](#p22)
+    - [Analyser le service en cours de fonctionnement](#p23)
+    - [Connectez vous au serveur](#p24)
+    - [Visualiser les logs](#p25)
+    - [Modifier le comportement du service](#p26)
+    - [Connectez vous sur le nouveau port choisi](#p27)
 - [Partie 3 : Création de votre propre service](#p3)  
 
 
@@ -196,7 +203,6 @@ LISTEN        0             128                           [::]:1026             
 ### Connectez vous sur le nouveau port choisi <a name="p16"></a>
 
 ```bash
-
 C:\Users\xouxo>ssh -p 1026 xouxou@192.168.56.116
 xouxou@192.168.56.116's password:
 Welcome to Ubuntu 20.04.3 LTS (GNU/Linux 5.11.0-38-generic x86_64)
@@ -216,9 +222,201 @@ Last login: Wed Nov  3 15:14:57 2021 from 192.168.56.1
 xouxou@node1:~$
 ```
 
-
 ## Partie 2 : Installation et configuration d'un service FTP <a name="p2"></a>
 
+### Installer le paquet vsftpd <a name="p21"></a>
 
+```bash
+xouxou@node1:~$ sudo apt install vsftpd
+[sudo] password for xouxou:
+Reading package lists... Done
+Building dependency tree
+Reading state information... Done
+The following NEW packages will be installed:
+  vsftpd
+0 upgraded, 1 newly installed, 0 to remove and 51 not upgraded.
+Need to get 115 kB of archives.
+After this operation, 338 kB of additional disk space will be used.
+Get:1 http://fr.archive.ubuntu.com/ubuntu focal/main amd64 vsftpd amd64 3.0.3-12 [115 kB]
+Fetched 115 kB in 1s (195 kB/s)
+Preconfiguring packages ...
+Selecting previously unselected package vsftpd.
+(Reading database ... 199592 files and directories currently installed.)
+Preparing to unpack .../vsftpd_3.0.3-12_amd64.deb ...
+Unpacking vsftpd (3.0.3-12) ...
+Setting up vsftpd (3.0.3-12) ...
+Created symlink /etc/systemd/system/multi-user.target.wants/vsftpd.service → /lib/systemd/system/vsftpd.service.
+Processing triggers for man-db (2.9.1-1) ...
+Processing triggers for systemd (245.4-4ubuntu3.11) ...
+```
+
+###  Lancer le service vsftpd <a name="p21"></a>
+
+```bash
+xouxou@node1:~$ sudo systemctl start vsftpd
+xouxou@node1:~$ sudo systemctl status vsftpd
+● vsftpd.service - vsftpd FTP server
+     Loaded: loaded (/lib/systemd/system/vsftpd.service; enabled; vendor preset: enabled)
+     Active: active (running) since Wed 2021-11-03 15:58:28 CET; 11min ago
+   Main PID: 1959 (vsftpd)
+      Tasks: 1 (limit: 2312)
+     Memory: 524.0K
+     CGroup: /system.slice/vsftpd.service
+             └─1959 /usr/sbin/vsftpd /etc/vsftpd.conf
+[...]
+```
+
+### Analyser le service en cours de fonctionnement <a name="p23"></a>
+
+- Afficher le statut du service
+```bash
+xouxou@node1:~$ sudo systemctl status vsftpd
+● vsftpd.service - vsftpd FTP server
+     Loaded: loaded (/lib/systemd/system/vsftpd.service; enabled; vendor preset: enabled)
+     Active: active (running) since Wed 2021-11-03 15:58:28 CET; 14min ago
+   Main PID: 1959 (vsftpd)
+      Tasks: 1 (limit: 2312)
+     Memory: 524.0K
+     CGroup: /system.slice/vsftpd.service
+             └─1959 /usr/sbin/vsftpd /etc/vsftpd.conf
+[...]
+```
+- Afficher le/les processus liés au service vsftpd
+```bash
+xouxou@node1:~$ ps -ef
+[...]
+root        1959       1  0 15:58 ?        00:00:00 /usr/sbin/vsftpd /etc/vsftpd.conf
+[...]
+```
+- Afficher le port utilisé par le service vsftp
+```bash
+xouxou@node1:~$ ss -lntr
+State             Recv-Q            Send-Q                       Local Address:Port                       Peer Address:Port           Process
+[...]
+LISTEN            0                 32                                       *:21                                    *:*
+[...]
+```
+- Afficher les logs du service vsftpd
+```bash
+xouxou@node1:~$ journalctl -xe -u vsftpd
+[...]
+nov. 03 15:58:28 node1.tp2.linux systemd[1]: Starting vsftpd FTP server...
+-- Subject: A start job for unit vsftpd.service has begun execution
+-- Defined-By: systemd
+-- Support: http://www.ubuntu.com/support
+--
+-- A start job for unit vsftpd.service has begun execution.
+--
+-- The job identifier is 2841.
+nov. 03 15:58:28 node1.tp2.linux systemd[1]: Started vsftpd FTP server.
+-- Subject: A start job for unit vsftpd.service has finished successfully
+-- Defined-By: systemd
+-- Support: http://www.ubuntu.com/support
+--
+-- A start job for unit vsftpd.service has finished successfully.
+--
+-- The job identifier is 2841.
+```
+
+### Connectez vous au serveur <a name="p24"></a>
+
+- Depuis la VM
+```bash
+xouxou@node1:/etc$ sudo nano vsftpd.conf
+xouxou@node1:/etc$ cat vsftpd.conf
+[...]
+write_enable=YES
+[...]
+anon_upload_enable=YES
+[...]
+```
+- Depuis mon pc
+```bash
+C:\Users\xouxo>ftp 192.168.56.116
+Connecté à 192.168.56.116.
+220 (vsFTPd 3.0.3)
+200 Always in UTF8 mode.
+Utilisateur (192.168.56.116:(none)) : xouxou
+331 Please specify the password.
+Mot de passe :
+230 Login successful.
+ftp> put C:\Users\xouxo\Pictures\cien.jpg
+200 PORT command successful. Consider using PASV.
+150 Ok to send data.
+226 Transfer complete.
+ftp : 54961 octets envoyés en 0.00 secondes à 54961.00 Ko/s.
+ftp : 13 octets reçus en 0.00 secondes à 13.00 Ko/s.
+ftp> get cien.jpg
+200 PORT command successful. Consider using PASV.
+150 Opening BINARY mode data connection for cien.jpg (54961 bytes).
+226 Transfer complete.
+ftp : 54961 octets reçus en 0.00 secondes à 54961.00 Ko/s.
+```
+- Depuis la VM
+```bash
+xouxou@node1:/var/log$ sudo cat vsftpd.log
+[...]
+Sat Nov  6 13:12:47 2021 [pid 931] [xouxou] OK UPLOAD: Client "::ffff:192.168.56.1", "/home/xouxou/Pictures/cien.jpg", 54961 bytes, 5220.08Kbyte/sec
+Sat Nov  6 13:13:23 2021 [pid 931] [xouxou] OK DOWNLOAD: Client "::ffff:192.168.56.1", "/home/xouxou/Pictures/cien.jpg", 54961 bytes, 43007.09Kbyte/sec
+[...]
+xouxou@node1:~$ cd Pictures/
+xouxou@node1:~/Pictures$ ls
+cien.jpg
+```
+
+### Visualiser les logs <a name="p25"></a>
+
+```bash
+xouxou@node1:/var/log$ sudo cat vsftpd.log
+[...]
+Sat Nov  6 13:12:47 2021 [pid 931] [xouxou] OK UPLOAD: Client "::ffff:192.168.56.1", "/home/xouxou/Pictures/cien.jpg", 54961 bytes, 5220.08Kbyte/sec
+Sat Nov  6 13:13:23 2021 [pid 931] [xouxou] OK DOWNLOAD: Client "::ffff:192.168.56.1", "/home/xouxou/Pictures/cien.jpg", 54961 bytes, 43007.09Kbyte/sec
+[...]
+```
+
+### Modifier le comportement du service <a name="p26"></a>
+
+```bash
+xouxou@node1:~$ sudo nano /etc/vsftpd.conf
+xouxou@node1:~$ cat /etc/vsftpd.conf
+listen_port=1030
+[...]
+xouxou@node1:~$ ss -lntr
+State         Recv-Q        Send-Q               Local Address:Port               Peer Address:Port       Process
+[...]
+LISTEN        0             32                               *:1030                          *:*
+[...]
+``` 
+
+### Connectez vous sur le nouveau port choisi <a name="p27"></a>
+
+- Depuis mon pc
+```bash
+ftp> open 192.168.56.116 1030
+Connecté à 192.168.56.116.
+220 (vsFTPd 3.0.3)
+200 Always in UTF8 mode.
+Utilisateur (192.168.56.116:(none)) : xouxou
+331 Please specify the password.
+Mot de passe :
+230 Login successful.
+ftp> put C:\Users\xouxo\Pictures\paim-o'-lantern.jpg
+200 PORT command successful. Consider using PASV.
+150 Ok to send data.
+226 Transfer complete.
+ftp : 58066 octets envoyés en 0.00 secondes à 58066000.00 Ko/s.
+ftp> get paim-o'-lantern.jpg
+200 PORT command successful. Consider using PASV.
+150 Opening BINARY mode data connection for paim-o'-lantern.jpg (58066 bytes).
+226 Transfer complete.
+ftp : 58066 octets reçus en 0.00 secondes à 58066000.00 Ko/s.
+```
+- Depuis la VM
+```bash
+xouxou@node1:~$ cat /var/log/vsftpd.log
+[...]
+Sat Nov  6 15:08:45 2021 [pid 1372] [xouxou] OK UPLOAD: Client "::ffff:192.168.56.1", "/home/xouxou/paim-o'-lantern.jpg", 58066 bytes, 4816.13Kbyte/sec
+Sat Nov  6 15:09:18 2021 [pid 1372] [xouxou] OK DOWNLOAD: Client "::ffff:192.168.56.1", "/home/xouxou/paim-o'-lantern.jpg", 58066 bytes, 48925.87Kbyte/sec
+```
 
 ## Partie 3 : Création de votre propre service <a name="p3"></a>
