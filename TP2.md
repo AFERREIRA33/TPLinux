@@ -29,6 +29,7 @@ node1.tp2.linux
 
 ###  Config réseau fonctionnelle
 
+- Depuis la VM
 ```bash
 xouxou@xouxou-vm:~$ ping 1.1.1.1 -c 4
 PING 1.1.1.1 (1.1.1.1) 56(84) bytes of data.
@@ -52,8 +53,9 @@ PING ynov.com (92.243.16.143) 56(84) bytes of data.
 --- ynov.com ping statistics ---
 4 packets transmitted, 4 received, 0% packet loss, time 3005ms
 rtt min/avg/max/mdev = 20.774/22.270/23.522/0.981 ms
-
-
+```
+- Depuis mon PC
+```bash
 C:\Users\xouxo>ping 192.168.56.116
 
 Envoi d’une requête 'Ping'  192.168.56.116 avec 32 octets de données :
@@ -66,7 +68,6 @@ Statistiques Ping pour 192.168.56.116:
     Paquets : envoyés = 4, reçus = 4, perdus = 0 (perte 0%),
 Durée approximative des boucles en millisecondes :
     Minimum = 0ms, Maximum = 0ms, Moyenne = 0ms
-
 ```
 
 
