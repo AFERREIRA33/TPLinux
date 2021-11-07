@@ -3,8 +3,11 @@
 Ferreira Alex B1 A
 
 [Intro](#Intro)
+
 [Partie 1 : Installation et configuration d'un service SSH](#p1)
+
 [Partie 2 : Installation et configuration d'un service FTP](#p2)
+
 [## Partie 3 : Création de votre propre service](#p3)
 
 
