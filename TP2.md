@@ -8,6 +8,7 @@ Ferreira Alex B1 A
 
 ## Partie 1 : Installation et configuration d'un service SSH
 
+### Installer le paquet openssh-server
 
 
 ## Partie 2 : Installation et configuration d'un service FTP
