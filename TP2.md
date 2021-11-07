@@ -21,6 +21,10 @@ Ferreira Alex B1 A
     - [Modifier le comportement du service](#p26)
     - [Connectez vous sur le nouveau port choisi](#p27)
 - [Partie 3 : Création de votre propre service](#p3)  
+    - [Donnez les deux commandes pour établir ce petit chat avec netcat](#p31)
+    - [Utiliser netcat pour stocker les données échangées dans un fichier](#p32)
+    - [Créer un nouveau service](#p33)
+    - [Tester le nouveau service](#p34)
 
 
 ## Intro
@@ -420,3 +424,107 @@ Sat Nov  6 15:09:18 2021 [pid 1372] [xouxou] OK DOWNLOAD: Client "::ffff:192.168
 ```
 
 ## Partie 3 : Création de votre propre service <a name="p3"></a>
+
+### Donnez les deux commandes pour établir ce petit chat avec netcat <a name="p31"></a>
+
+- sur la VM
+```bash
+xouxou@node1:~$ nc -l -p 1299
+hello
+sss
+```
+- sur le pc
+```bash
+xouxou@node1:~$ nc localhost 1299
+hello
+sss
+```
+
+### Utiliser netcat pour stocker les données échangées dans un fichier <a name="p32"></a>
+
+- sur la VM
+```bash
+xouxou@node1:~$ ls
+ cien.jpg   Documents   Music     "paim-o'-lantern.jpg"   Public      Videos
+ Desktop    Downloads   out.file   Pictures               Templates
+xouxou@node1:~$ nc -l -p 1299 > lognc
+```
+- sur le pc
+```bash
+xouxou@node1:~$ nc localhost 1299
+omegalul
+```
+- sur la VM
+```bash
+xouxou@node1:~$ ls
+ cien.jpg   Documents   lognc   out.file               Pictures   Templates
+ Desktop    Downloads   Music  "paim-o'-lantern.jpg"   Public     Videos
+xouxou@node1:~$ cat lognc
+omegalul
+
+```
+
+### Créer un nouveau service <a name="p33"></a>
+
+```bash
+xouxou@node1:~$ sudo nano /etc/systemd/system/chat_tp2.service
+xouxou@node1:~$ sudo cat /etc/systemd/system/chat_tp2.service
+[sudo] password for xouxou:
+[Unit]
+Description=Little chat service (TP2)
+
+[Service]
+ExecStart=/usr/bin/nc -l -p 1299
+
+[Install]
+WantedBy=multi-user.target
+xouxou@node1:/etc/systemd/system$ sudo chmod 777 chat_tp2.service
+xouxou@node1:/etc/systemd/system$ ls -al
+[...]
+-rwxrwxrwx  1 root root  119 nov.   7 09:29 chat_tp2.service
+drwxr-xr-x  2 root root 4096 août  19 12:39 cloud-final.service.wants
+lrwxrwxrwx  1 root root   42 oct.  19 11:16 dbus-fi.w1.wpa_supplicant1.service -> /lib/systemd/system/wpa_supplicant.service
+[...]
+
+```
+
+### Tester le nouveau service <a name="p34"></a>
+
+- sur la VM
+```bash
+xouxou@node1:/etc/systemd/system$ sudo systemctl start chat_tp2.service
+xouxou@node1:/etc/systemd/system$ sudo systemctl status chat_tp2.service
+● chat_tp2.service - Little chat service (TP2)
+     Loaded: loaded (/etc/systemd/system/chat_tp2.service; disabled; vendor preset: enabled)
+     Active: active (running) since Sun 2021-11-07 09:43:17 CET; 3s ago
+   Main PID: 6597 (nc)
+      Tasks: 1 (limit: 2312)
+     Memory: 200.0K
+     CGroup: /system.slice/chat_tp2.service
+             └─6597 /usr/bin/nc -l -p 1299
+
+nov. 07 09:43:17 node1.tp2.linux systemd[1]: Started Little chat service (TP2)
+xouxou@node1:/etc/systemd/system$ ss -lntr
+State        Recv-Q       Send-Q               Local Address:Port               Peer Address:Port       Process
+LISTEN       0            1                          0.0.0.0:1299                    0.0.0.0:*
+[...]
+```
+- sur le pc
+```bash
+xouxou@node1:~$ nc localhost 1299
+yo
+```
+- sur la VM
+```bash
+xouxou@node1:/etc/systemd/system$ journalctl -xe -u chat_tp2
+[...]
+-- A start job for unit chat_tp2.service has finished successfully.
+--
+-- The job identifier is 3834.
+nov. 07 09:49:54 node1.tp2.linux nc[6621]: yo
+nov. 07 09:50:07 node1.tp2.linux systemd[1]: chat_tp2.service: Succeeded.
+-- Subject: Unit succeeded
+[...]
+```
+
+
