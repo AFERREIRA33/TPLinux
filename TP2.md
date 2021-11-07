@@ -5,7 +5,13 @@ Ferreira Alex B1 A
 - [Intro](#Intro)  
     - [Changer le nom de la machine](#pr1)   
     - [Config réseau fonctionnelle](#pr2)  
-- [Partie 1 : Installation et configuration d'un service SSH](#p1)  
+- [Partie 1 : Installation et configuration d'un service SSH](#p1) 
+    - [Installer le paquet openssh-server](#p11)
+    - [Lancer le service ssh](#p12)
+    - [Analyser le service en cours de fonctionnement](#p13)
+    - [Connectez vous au serveur](#p14)
+    - [Modifier le comportement du service](#p15)
+    - [Connectez vous sur le nouveau port choisi](#p16)
 - [Partie 2 : Installation et configuration d'un service FTP](#p2)  
 - [Partie 3 : Création de votre propre service](#p3)  
 
@@ -72,7 +78,81 @@ Durée approximative des boucles en millisecondes :
 
 ## Partie 1 : Installation et configuration d'un service SSH <a name="p1"></a>
 
-### Installer le paquet openssh-server
+### Installer le paquet openssh-server <a name="p11"></a>
+
+```bash
+xouxou@xouxou-vm:~$ sudo apt install openssh-server
+[sudo] password for xouxou:
+Reading package lists... Done
+Building dependency tree
+Reading state information... Done
+openssh-server is already the newest version (1:8.2p1-4ubuntu0.3).
+0 upgraded, 0 newly installed, 0 to remove and 51 not upgraded.
+xouxou@xouxou-vm:~$ cd /etc/ssh
+xouxou@xouxou-vm:/etc/ssh$ ls
+moduli      ssh_config.d  sshd_config.d       ssh_host_ecdsa_key.pub  ssh_host_ed25519_key.pub  ssh_host_rsa_key.pub
+ssh_config  sshd_config   ssh_host_ecdsa_key  ssh_host_ed25519_key    ssh_host_rsa_key
+```
+### Lancer le service ssh <a name="p12"></a>
+
+```bash
+xouxou@xouxou-vm:~$ systemctl start sshd
+==== AUTHENTICATING FOR org.freedesktop.systemd1.manage-units ===
+Authentication is required to start 'ssh.service'.
+Authenticating as: xouxou,,, (xouxou)
+Password:
+==== AUTHENTICATION COMPLETE ===
+xouxou@xouxou-vm:~$ systemctl status sshd
+● ssh.service - OpenBSD Secure Shell server
+     Loaded: loaded (/lib/systemd/system/ssh.service; enabled; vendor preset: enabled)
+     Active: active (running) since Mon 2021-10-25 11:47:20 CEST; 17s ago
+[...]
+```
+### Analyser le service en cours de fonctionnement <a name="p13"></a>
+
+- Afficher le statut du service
+```bash
+xouxou@xouxou-vm:~$ systemctl status sshd
+● ssh.service - OpenBSD Secure Shell server
+     Loaded: loaded (/lib/systemd/system/ssh.service; enabled; vendor preset: enabled)
+     Active: active (running) since Mon 2021-10-25 11:47:20 CEST; 17s ago
+       Docs: man:sshd(8)
+             man:sshd_config(5)
+    Process: 23887 ExecStartPre=/usr/sbin/sshd -t (code=exited, status=0/SUCCESS)
+   Main PID: 23888 (sshd)
+      Tasks: 1 (limit: 2312)
+     Memory: 1.0M
+     CGroup: /system.slice/ssh.service
+             └─23888 sshd: /usr/sbin/sshd -D [listener] 0 of 10-100 startups
+[...]
+```
+- Afficher le/les processus liés au service ssh
+```bash
+xouxou@xouxou-vm:~$ ps -ef
+[...]
+root        1254       1  0 11:12 ?        00:00:00 sshd: xouxou [priv]
+xouxou      1332    1254  0 11:12 ?        00:00:00 sshd: xouxou@pts/1
+[...]
+```
+- Afficher le port utilisé par le service ssh
+```bash
+xouxou@xouxou-vm:~$ ss -lntr
+State                       Recv-Q                      Send-Q                                            Local Address:Port                                             Peer Address:Port                      Process
+[...]
+LISTEN                      0                           128                                                     0.0.0.0:22                                                    0.0.0.0:*
+[...]
+```
+- Afficher les logs du service ssh
+```bash
+xouxou@xouxou-vm:~$ journalctl -xe -u ssh 
+[...]
+oct. 25 11:12:07 xouxou-vm sshd[1254]: Accepted password for xouxou from 192.168.56.1 port 55447 ssh2
+oct. 25 11:12:07 xouxou-vm sshd[1254]: pam_unix(sshd:session): session opened for user xouxou by (uid=0)
+oct. 25 11:46:56 node1.tp2.linux systemd[1]: Stopping OpenBSD Secure Shell server...
+[...]
+```
+
+
 
 
 ## Partie 2 : Installation et configuration d'un service FTP <a name="p2"></a>
