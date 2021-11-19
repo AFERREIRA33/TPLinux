@@ -1,5 +1,6 @@
 dl="/srv/yt/downloads"
-if [[ -d "$dl" ]]; then
+log="/var/log/yt"
+if [[ (-d "$dl") && (-d "$log") ]]; then
 	url=$1
 	title=$(youtube-dl -j $url | cut -d'"' -f8)
 	mkdir "/srv/yt/downloads/$title"
