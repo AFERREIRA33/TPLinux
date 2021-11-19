@@ -14,12 +14,12 @@ count=2
 echo "Listening ports :"
 nb=$(ss -lntr | wc -l)
 let "nb -= 1"
-for ((i = 0  ; i <  $nb ;  i++)); do
+for ((i = 0  ; i < $nb ;  i++)); do
         m=$(ss -tulp | grep "LISTEN" | head -$countbis | tail -1 | cut -d':' -f2 |cut -d' ' -f1)
         if  [[ -n "$m" ]]; then
                 echo " - $(ss -lntr | head -$count | tail -1 | cut -d':' -f2 |cut -d' ' -f1) : $(ss -tulp | grep "LISTEN" | head -$countbis | tail -1 | cut -d':' -f2 |cut -d' ' -f1)"
-        fi
         let "count += 1"
+        fi
         let "countbis += 1"
 
 done

@@ -44,3 +44,39 @@ xouxou@xouxou-vm:/srv/yt$
 ```
 
 ## III. MAKE IT A SERVICE <a name="pr3"></a>
+
+script : [yt-v2.sh](./yt-v2.sh)
+
+service : [yt.service](./yt.service)
+
+service active : 
+```bash
+xouxou@xouxou-vm:/srv/idcard$ systemctl status yt
+● yt.service - download youtube video with a file
+     Loaded: loaded (/etc/systemd/system/yt.service; enabled; vendor preset: enabled)
+     Active: active (running) since Fri 2021-11-19 15:07:30 CET; 2s ago
+   Main PID: 2317 (bash)
+      Tasks: 2 (limit: 2312)
+     Memory: 568.0K
+     CGroup: /system.slice/yt.service
+             ├─2317 /usr/bin/bash /srv/yt/yt-v2.sh
+             └─2319 sleep 5
+
+nov. 19 15:07:30 xouxou-vm systemd[1]: Started download youtube video with a file.
+```
+
+log du service :
+```bash
+xouxou@xouxou-vm:/srv/idcard$ journalctl -xe -u yt
+nov. 19 14:28:20 xouxou-vm bash[1150]: File path : /srv/yt/downloads/\u3082\u3063\u3068\u3054\u8912\u7f8e\u2661\u>
+nov. 19 14:28:22 xouxou-vm bash[1177]: ERROR: unable to download video data: HTTP Error 403: Forbidden
+nov. 19 14:28:24 xouxou-vm bash[1150]: https://www.youtube.com/watch?v=oNPKaw_watU
+nov. 19 14:28:26 xouxou-vm bash[1150]: Video https://www.youtube.com/watch?v=oNPKaw_watU was downloaded.
+nov. 19 14:28:26 xouxou-vm bash[1150]: File path : /srv/yt/downloads/pov: Soap trusted you. Korone thought she co>
+nov. 19 14:47:42 xouxou-vm bash[1795]: https://www.youtube.com/watch?v=05HvaQGmVw0
+nov. 19 14:47:44 xouxou-vm bash[1800]: mkdir: cannot create directory ‘/srv/yt/downloads/BASED Nyanners’: File ex>
+nov. 19 14:47:44 xouxou-vm bash[1801]: mkdir: cannot create directory ‘/srv/yt/downloads/BASED Nyanners/descripti>
+nov. 19 14:47:44 xouxou-vm bash[1795]: Video https://www.youtube.com/watch?v=05HvaQGmVw0 was downloaded.
+```
+
+commande pour activer le service dès le lancement :```systemctl enable yt```

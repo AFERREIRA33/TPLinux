@@ -1,0 +1,9 @@
+[Unit]
+Description=download youtube video with a file
+
+[Service]
+ExecStart=bash /srv/yt/yt-v2.sh
+
+[Install]
+WantedBy=multi-user.target
+
