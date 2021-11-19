@@ -31,4 +31,16 @@ Here's your random cat :  https://cdn2.thecatapi.com/images/5qj.jpg
 
 ## II. Script youtube-dl <a name="pr2"></a>
 
+script : [yt.sh](./yt.sh)
+
+log : [download.log](./download.log)
+
+résultat : 
+```bash
+xouxou@xouxou-vm:/srv/yt$ sudo bash yt.sh https://www.youtube.com/watch?v=ATsLeb7cb7A
+Video https://www.youtube.com/watch?v=ATsLeb7cb7A was downloaded.
+File path : /srv/yt/downloads/Zzzz/Zzzz.mp4
+xouxou@xouxou-vm:/srv/yt$
+```
+
 ## III. MAKE IT A SERVICE <a name="pr3"></a>
