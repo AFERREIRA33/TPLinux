@@ -77,4 +77,70 @@ Nov 25 11:52:11 db.tp5.linux mysqld[8631]: 2021-11-25 11:52:11 0 [Note] /usr/lib
 mysql       8631       1  0 11:52 ?        00:00:00 /usr/libexec/mysqld --basedir=/usr
 ```
 
+### Firewall <a name="p13"></a>
+
+```bash
+[xouxou@localhost ~]$ sudo firewall-cmd --add-port=3306/tcp --permanent
+success
+[xouxou@localhost ~]$ sudo firewall-cmd --reload
+success
+[xouxou@localhost ~]$ sudo firewall-cmd --list-all
+public (active)
+[...]
+  ports: 3306/tcp
+[...]
+```
+
+### Configuration élémentaire de la base <a name="p14"></a>
+
+```bash
+[xouxou@localhost ~]$ mysql_secure_installation
+
+[...]
+# Pour donner un mot de passe à root donc augmente la sécurité
+Set root password? [Y/n] y
+
+New password:
+Re-enter new password:
+Password updated successfully!
+Reloading privilege tables..
+ ... Success!
+
+[...]
+# de base MariaDb créer un utilisateur qui sert  à faire des tests avec des droits d'admin,
+# en répondant oui je supprime cet utilisateur qui pose probleme car il est facile de s'y connecter
+Remove anonymous users? [Y/n] y
+ ... Success!
+
+
+[...]
+# Pour faire en sorte que root ne puisse se connecter que sur le réseau local
+#se qui permet d'éviter les connexions extérieurs indéiré
+Disallow root login remotely? [Y/n] y
+ ... Success!
+
+[...]
+# supprime la base de donnée créée automatiquement par MariaDB
+Remove test database and access to it? [Y/n] y
+ - Dropping test database...
+ ... Success!
+ - Removing privileges on test database...
+ ... Success!
+
+Reloading the privilege tables will ensure that all changes made so far
+will take effect immediately.
+[...]
+# relance la table de priviège pour mettre nos modifictions à jour
+Reload privilege tables now? [Y/n] y
+ ... Success!
+
+Cleaning up...
+
+All done!  If you've completed all of the above steps, your MariaDB
+installation should now be secure.
+
+Thanks for using MariaDB!
+
+```
+
 ## Setup web <a name="p2"></a>
