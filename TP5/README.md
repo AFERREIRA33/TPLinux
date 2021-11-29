@@ -143,4 +143,68 @@ Thanks for using MariaDB!
 
 ```
 
+### Préparation de la base en vue de l'utilisation par NextCloud <a name="p15"></a>
+
+```bash
+[xouxou@localhost ~]$ sudo mysql -u root -p
+[sudo] password for xouxou:
+Enter password:
+Welcome to the MariaDB monitor.  Commands end with ; or \g.
+Your MariaDB connection id is 16
+Server version: 10.3.28-MariaDB MariaDB Server
+
+Copyright (c) 2000, 2018, Oracle, MariaDB Corporation Ab and others.
+
+Type 'help;' or '\h' for help. Type '\c' to clear the current input statement.
+
+MariaDB [(none)]> CREATE USER 'nextcloud'@'10.5.1.11' IDENTIFIED BY 'meow';
+Query OK, 0 rows affected (0.000 sec)
+
+MariaDB [(none)]> CREATE DATABASE IF NOT EXISTS nextcloud CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci;
+Query OK, 1 row affected (0.000 sec)
+
+MariaDB [(none)]> GRANT ALL PRIVILEGES ON nextcloud.* TO 'nextcloud'@'10.5.1.11';
+Query OK, 0 rows affected (0.000 sec)
+
+MariaDB [(none)]> FLUSH PRIVILEGES;
+Query OK, 0 rows affected (0.000 sec)
+```
+
+### Installez sur la machine web.tp5.linux la commande mysql <a name="p16"></a>
+
+```bash
+[xouxou@web ~]$ sudo dnf install 8.0.26-1.module+el8.4.0+652+6de068a7
+[sudo] password for xouxou:
+Rocky Linux 8 - AppStream                                                                12 kB/s | 4.8 kB     00:00
+Rocky Linux 8 - BaseOS                                                                   12 kB/s | 4.3 kB     00:00
+Rocky Linux 8 - Extras                                                                  9.8 kB/s | 3.5 kB     00:00
+No match for argument: 8.0.26-1.module+el8.4.0+652+6de068a7
+Error: Unable to find a match: 8.0.26-1.module+el8.4.0+652+6de068a7
+[xouxou@web ~]$ dnf provides mysql
+Last metadata expiration check: 0:05:56 ago on Thu 25 Nov 2021 12:24:02 PM CET.
+mysql-8.0.26-1.module+el8.4.0+652+6de068a7.x86_64 : MySQL client programs and shared libraries
+Repo        : appstream
+Matched from:
+Provide    : mysql = 8.0.26-1.module+el8.4.0+652+6de068a7
+
+[xouxou@web ~]$ sudo dnf install mysql-8.0.26-1.module+el8.4.0+652+6de068a7.x86_64
+Last metadata expiration check: 0:01:57 ago on Thu 25 Nov 2021 12:29:47 PM CET.
+Dependencies resolved.
+[...]
+Complete!
+```
+
+### Tester la connexion <a name="p17"></a>
+
+```bash
+[xouxou@web ~]$ mysql -u nextcloud -h 10.5.1.12 -P 3306 -D nextcloud -p
+Enter password:
+Welcome to the MySQL monitor.  Commands end with ; or \g.
+[...]
+
+mysql> SHOW TABLES;
+Empty set (0.00 sec)
+```
+
 ## Setup web <a name="p2"></a>
+
