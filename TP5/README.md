@@ -431,4 +431,4 @@ $ sudo nano hosts
 
 ### Tester l'accès à NextCloud et finaliser son install' <a name="p211"></a>
 
-![Capture](./Capture.jpg)
+![Capture](./Capture.PNG)
