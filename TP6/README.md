@@ -11,7 +11,7 @@
     - [Préparer les dossiers à partager](#p2.1)
     - [Install du serveur NFS](#p2.2)
     - [Conf du serveur NFS](#p2.3)
-    - [Démarrez le service](#2.4)
+    - [Démarrez le service](#p2.4)
     - [Firewall](#p2.5)
 - [Partie 3 : Setup des clients NFS : web.tp6.linux et db.tp6.linux](#p3)
     - [Install'](#p3.1)
