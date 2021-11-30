@@ -166,7 +166,7 @@ no_root_squash = empêche la transformation de root
 Created symlink /etc/systemd/system/multi-user.target.wants/nfs-server.service → /usr/lib/systemd/system/nfs-server.service.
 ```
 
-### Firewall <a name="p2.4"></a>
+### Firewall <a name="p2.5"></a>
 
 ```bash
 [xouxou@backup ~]$ sudo firewall-cmd --add-port=2049/tcp
