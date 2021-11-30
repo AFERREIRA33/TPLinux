@@ -114,6 +114,70 @@ mount: /mnt/backup does not contain SELinux labels.
 
 ## Partie 2 : Setup du serveur NFS sur backup.tp6.linux <a name="p2"></a>
 
+### Préparer les dossiers à partager <a name="p2.1"></a>
+
+```bash
+[xouxou@backup ~]$ sudo mkdir /mnt/backup/web.tp6.linux
+[sudo] password for xouxou:
+[xouxou@backup ~]$ sudo mkdir /mnt/backup/db.tp6.linux
+[xouxou@backup ~]$ cd /mnt/backup/
+[xouxou@backup backup]$ ls
+db.tp6.linux  lost+found  web.tp6.linux
+```
+
+### Install du serveur NFS <a name="p2.2"></a>
+
+```bash
+[xouxou@backup backup]$ sudo dnf install nfs-utils
+Last metadata expiration check: 6:35:30 ago on Tue 30 Nov 2021 12:30:48 PM CET.
+Dependencies resolved.
+[...]
+Installed:
+  gssproxy-0.8.0-19.el8.x86_64           keyutils-1.5.10-9.el8.x86_64        libverto-libevent-0.3.0-5.el8.x86_64
+  nfs-utils-1:2.3.3-46.el8.x86_64        rpcbind-1.2.5-8.el8.x86_64
+
+Complete!
+```
+
+### Conf du serveur NFS <a name="p2.3"></a>
+
+```bash
+[xouxou@backup backup]$ sudo nano /etc/idmapd.conf
+[xouxou@backup mnt]$ cat /etc/idmapd.conf | grep Domain
+Domain = tp6.linux
+
+[xouxou@backup mnt]$ sudo nano /etc/exports
+[xouxou@backup mnt]$ cat /etc/exports
+/mnt/backup/web.tp6.linux/ 10.5.1.11/24(rw,no_root_squash)
+/mnt/backup/db.tp6.linux/ 10.5.1.12/24(rw,no_root_squash)
+```
+rw = autorise les requêtes de lecture et d'écriture  
+no_root_squash = empêche la transformation de root
+
+### Démarrez le service <a name="p2.4"></a>
+
+```bash
+[xouxou@backup ~]$ sudo systemctl start nfs-server
+[xouxou@backup ~]$ systemctl status nfs-server
+● nfs-server.service - NFS server and services
+   Loaded: loaded (/usr/lib/systemd/system/nfs-server.service; disabled; vendor preset: disabled)
+   Active: active (exited) since Tue 2021-11-30 19:50:26 CET; 24s ago
+[xouxou@backup ~]$ sudo systemctl enable nfs-server
+Created symlink /etc/systemd/system/multi-user.target.wants/nfs-server.service → /usr/lib/systemd/system/nfs-server.service.
+```
+
+### Firewall <a name="p2.4"></a>
+
+```bash
+[xouxou@backup ~]$ sudo firewall-cmd --add-port=2049/tcp
+[xouxou@backup ~]$ ss -lntr |grep 2049
+LISTEN 0      64           0.0.0.0:2049       0.0.0.0:*
+LISTEN 0      64              [::]:2049          [::]:*
+[xouxou@backup ~]$ ss -tulp |grep nfs
+tcp   LISTEN 0      64           0.0.0.0:nfs         0.0.0.0:*
+tcp   LISTEN 0      64              [::]:nfs            [::]:*
+```
+
 ## Partie 3 : Setup des clients NFS : web.tp6.linux et db.tp6.linux <a name="p3"></a>
 
 ## Partie 4 : Scripts de sauvegarde <a name="p4"></a>
