@@ -180,4 +180,80 @@ tcp   LISTEN 0      64              [::]:nfs            [::]:*
 
 ## Partie 3 : Setup des clients NFS : web.tp6.linux et db.tp6.linux <a name="p3"></a>
 
+### Install' <a name="p3.1"></a>
+
+```bash
+[xouxou@web ~]$ sudo dnf install nfs-utils
+[sudo] password for xouxou:
+Last metadata expiration check: 8:02:32 ago on Tue 30 Nov 2021 12:05:05 PM CET.
+Dependencies resolved.
+[...]
+Installed:
+  gssproxy-0.8.0-19.el8.x86_64           keyutils-1.5.10-9.el8.x86_64        libverto-libevent-0.3.0-5.el8.x86_64
+  nfs-utils-1:2.3.3-46.el8.x86_64        rpcbind-1.2.5-8.el8.x86_64
+
+Complete!
+```
+
+### Conf' <a name="p3.2"></a>
+
+```bash
+[xouxou@web ~]$ sudo mkdir /srv/backup
+[xouxou@web ~]$ ls /srv/
+backup
+
+[xouxou@web ~]$ sudo nano /etc/idmapd.conf
+[xouxou@web ~]$ cat /etc/idmapd.conf | grep Domain
+Domain = tp6.linux
+```
+
+### Montage !  <a name="p3.3"></a>
+
+- Montage de la partition NFS
+```bash
+[xouxou@web ~]$ sudo mount -t nfs 10.5.1.13:/mnt/backup/web.tp6.linux /srv/backup
+[xouxou@web ~]$ df -h | grep backup
+10.5.1.13:/mnt/backup/web.tp6.linux  4.9G   20M  4.6G   1% /srv/backup
+[xouxou@web ~]$ ls -al /srv | grep backup
+drwxr-xr-x.  2 root root 4096 Nov 30 19:02 backup
+```
+- Montage auto
+```bash
+[xouxou@web ~]$ sudo nano /etc/fstab
+[xouxou@web ~]$ cat /etc/fstab | grep backup
+10.5.1.13:/mnt/backup/web.tp6.linux /srv/backup nfs defaults 0 0
+[xouxou@web ~]$ sudo umount /srv/backup
+[xouxou@web ~]$ sudo mount -av
+/                        : ignored
+/boot                    : already mounted
+none                     : ignored
+mount.nfs: timeout set for Tue Nov 30 21:19:19 2021
+mount.nfs: trying text-based options 'vers=4.2,addr=10.5.1.13,clientaddr=10.5.1.11'
+/srv/backup              : successfully mounted
+```
+
+### Répétez les opérations sur db.tp6.linux <a name="p3.4"></a>
+
+- partition montée
+```bash
+[xouxou@db ~]$ df -h | grep backup
+10.5.1.13:/mnt/backup/db.tp6.linux  4.9G   20M  4.6G   1% /srv/backup
+```
+- Peut écrire et lire
+```bash
+[xouxou@db ~]$ ls -al /srv | grep backup
+drwxr-xr-x.  2 root root 4096 Nov 30 19:03 backup
+```
+- montage auto fonctionne
+```bash
+[xouxou@db ~]$ sudo umount /srv/backup
+[xouxou@db ~]$ sudo mount -av
+/                        : ignored
+/boot                    : already mounted
+none                     : ignored
+mount.nfs: timeout set for Tue Nov 30 21:30:15 2021
+mount.nfs: trying text-based options 'vers=4.2,addr=10.5.1.13,clientaddr=10.5.1.12'
+/srv/backup              : successfully mounted
+```
+
 ## Partie 4 : Scripts de sauvegarde <a name="p4"></a>
