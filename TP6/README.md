@@ -357,9 +357,87 @@ mysqldump -u nextcloud -h 10.5.1.12 -P 3306 -D nextcloud
 
 ### Ecrire un script qui sauvegarde les données de la base de données MariaDB <a name="p4.5"></a>
 
+```bash
+[xouxou@db ~]$ sudo mkdir /srv/save
+[xouxou@db ~]$ sudo nano /srv/save/save.sh
+[xouxou@db ~]$ cat /srv/save/save.sh
+#!/bin/bash
+#
+# Ferreira Alex 3/12/2021
+
+log_date=$(date +"[%y/%m/%d %H:%M:%S]")
+file_date=$(date +"%y%m%d_%H%M%S")
+path="/srv/backup/nextcloud_db_${file_date}.tar.gz"
+line="Backup ${path} created successfully."
+Mdump='/srv/save/Mdump.sql'
+mysqldump -h localhost -p -u root nextcloud --password="toto"> '${Mdump}'
+tar -cvzf "${path}" "${Mdump}"
+echo "${log_date} ${line}" >> /var/log/backup/backup_db.log
+echo "${line}"
+[xouxou@db ~]$ sudo mkdir /var/log//backup
+[xouxou@db ~]$ sudo touch /var/log/backup/backup_db.log
+[xouxou@db ~]$ sudo bash /srv/save/save.sh
+Backup /srv/backup/nextcloud_db_211207_231204.tar.gz created successfully.
+```
+
 ### Créer un service <a name="p4.6"></a>
 
+```bash
+[xouxou@db ~]$ sudo nano /etc/systemd/system/backup_db.service
+[xouxou@db ~]$ cat /etc/systemd/system/backup_db.service
+[Unit]
+Description=Do a backup of your database
+
+[Service]
+ExecStart=/usr/bin/bash /srv/save/save.sh
+Type=oneshot
+
+[Install]
+WantedBy=multi-user.target
+
+
+[xouxou@db ~]$ cat /var/log/backup/backup_db.log
+[21/12/07 23:04:28] Backup /srv/backup/nextcloud_db_211207_230428.tar.gz created successfully.
+[21/12/07 23:05:08] Backup /srv/backup/nextcloud_db_211207_230508.tar.gz created successfully.
+[21/12/07 23:06:25] Backup /srv/backup/nextcloud_db_211207_230625.tar.gz created successfully.
+[21/12/07 23:06:50] Backup /srv/backup/nextcloud_db_211207_230650.tar.gz created successfully.
+[21/12/07 23:12:04] Backup /srv/backup/nextcloud_db_211207_231204.tar.gz created successfully.
+[21/12/07 23:18:37] Backup /srv/backup/nextcloud_db_211207_231837.tar.gz created successfully.
+[xouxou@db ~]$ sudo systemctl start backup_db
+[xouxou@db ~]$ cat /var/log/backup/backup_db.log
+[21/12/07 23:04:28] Backup /srv/backup/nextcloud_db_211207_230428.tar.gz created successfully.
+[21/12/07 23:05:08] Backup /srv/backup/nextcloud_db_211207_230508.tar.gz created successfully.
+[21/12/07 23:06:25] Backup /srv/backup/nextcloud_db_211207_230625.tar.gz created successfully.
+[21/12/07 23:06:50] Backup /srv/backup/nextcloud_db_211207_230650.tar.gz created successfully.
+[21/12/07 23:12:04] Backup /srv/backup/nextcloud_db_211207_231204.tar.gz created successfully.
+[21/12/07 23:18:37] Backup /srv/backup/nextcloud_db_211207_231837.tar.gz created successfully.
+[21/12/07 23:19:32] Backup /srv/backup/nextcloud_db_211207_231932.tar.gz created successfully.
+```
+
 ### Créer un timer <a name="p4.7"></a>
+
+```bash
+[xouxou@db ~]$ sudo nano /etc/systemd/system/backup_db.timer
+[xouxou@db ~]$ cat /etc/systemd/system/backup_db.timer
+[Unit]
+Description=Lance backup_db.service à intervalles réguliers
+Requires=backup_db.service
+
+[Timer]
+Unit=backup_db.service
+OnCalendar=hourly
+
+[Install]
+WantedBy=timers.target
+
+
+[xouxou@db ~]$ sudo systemctl daemon-reload
+[xouxou@db ~]$ sudo systemctl start backup_db.timer
+[xouxou@db ~]$ sudo systemctl enable backup_db.timer
+Created symlink /etc/systemd/system/timers.target.wants/backup_db.timer → /etc/systemd/system/backup_db.timer.
+[xouxou@db ~]$ sudo systemctl list-timers | grep backup_db
+Wed 2021-12-08 00:00:00 CET  33min left    n/a                          n/a       backup_db.timer              backup_db.service
+```
 
 
 
