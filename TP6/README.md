@@ -169,7 +169,7 @@ Created symlink /etc/systemd/system/multi-user.target.wants/nfs-server.service �
 ### Firewall <a name="p2.5"></a>
 
 ```bash
-[xouxou@backup ~]$ sudo firewall-cmd --add-port=2049/tcp
+[xouxou@backup ~]$ sudo firewall-cmd --add-port=2049/tcp --permanent
 [xouxou@backup ~]$ ss -lntr |grep 2049
 LISTEN 0      64           0.0.0.0:2049       0.0.0.0:*
 LISTEN 0      64              [::]:2049          [::]:*
@@ -257,3 +257,109 @@ mount.nfs: trying text-based options 'vers=4.2,addr=10.5.1.13,clientaddr=10.5.1.
 ```
 
 ## Partie 4 : Scripts de sauvegarde <a name="p4"></a>
+
+### Ecrire un script qui sauvegarde les données de NextCloud <a name="p4.1"></a>
+
+```bash
+[xouxou@web ~]$ sudo mkdir /srv/save
+[xouxou@web ~]$ sudo touch /srv/save/save.sh
+[xouxou@web /]$ sudo mkdir /var/log/backup
+[xouxou@web /]$ sudo touch /var/log/backup/backup.log
+[xouxou@web /]$ sudo nano /srv/save/save.sh
+[xouxou@web /]$ cat /srv/save/save.sh
+#!/bin/bash
+#
+# Ferreira Alex 3/12/2021
+
+log_date=$(date +"[%y/%m/%d %H:%M:%S]")
+file_date=$(date +"%y%m%d_%H%M%S")
+path="/srv/backup/nextcloud_${file_date}"
+
+line="Backup ${path} created successfully."
+
+tar -cvzf "${path}".tar.gz /var/www/nextcloud/*
+echo "${log_date} ${line}" >> /var/log/backup/backup.log
+echo "${line}"
+
+
+[xouxou@web backup]$ sudo bash /srv/save/save.sh
+[...]
+/var/www/nextcloud/html/data/xouxou/files/Photos/Steps.jpg
+/var/www/nextcloud/html/data/xouxou/files/Photos/Readme.md
+/var/www/nextcloud/html/data/xouxou/files/Photos/Gorilla.jpg
+Backup /srv/backup/nextcloud_211205_100821 created successfully.
+[xouxou@web /]$ ls /srv/backup
+nextcloud_211205_100821.tar.gz
+[xouxou@web /]$ cat /var/log/backup/backup.log
+[21/12/05 10:08:21] Backup /srv/backup/nextcloud_211205_100821 created successfully.
+```
+
+### Créer un service <a name="p4.2"></a>
+
+```bash
+[xouxou@web /]$ cat /etc/systemd/system/backup.service
+[Unit]
+Description=Do a backup of your nextcloud
+
+[Service]
+ExecStart=/usr/bin/bash /srv/save/save.sh
+Type=oneshot
+
+[Install]
+WantedBy=multi-user.target
+
+[xouxou@web /]$ ls /srv/backup/
+nextcloud_211205_100821.tar.gz  nextcloud_211205_102109.tar.gz
+[xouxou@web /]$ sudo systemctl start backup
+[sudo] password for xouxou:
+[xouxou@web /]$ ls /srv/backup/
+nextcloud_211205_100821.tar.gz  nextcloud_211205_102109.tar.gz  nextcloud_211205_102209.tar.gz
+```
+
+### Vérifier que vous êtes capables de restaurer les données <a name="p4.3"></a>
+
+```bash
+[xouxou@web www]$ sudo tar -vxf /srv/backup/nextcloud_211205_100821.tar.gz -C /
+[...]
+var/www/nextcloud/html/data/xouxou/files/Photos/Vineyard.jpg
+var/www/nextcloud/html/data/xouxou/files/Photos/Steps.jpg
+var/www/nextcloud/html/data/xouxou/files/Photos/Readme.md
+var/www/nextcloud/html/data/xouxou/files/Photos/Gorilla.jpg
+```
+
+### Créer un timer <a name="p4.4"></a>
+
+```bash
+[xouxou@web www]$ sudo nano /etc/systemd/system/backup.timer
+[xouxou@web www]$ [xouxou@web www]$ cat /etc/systemd/system/backup.timer
+[Unit]
+Description=Lance backup.service à intervalles réguliers
+Requires=backup.service
+
+[Timer]
+Unit=backup.service
+OnCalendar=hourly
+
+[Install]
+WantedBy=timers.target
+
+
+[xouxou@web www]$ sudo systemctl daemon-reload
+[xouxou@web www]$ sudo systemctl start backup.timer
+[xouxou@web www]$ sudo systemctl enable backup.timer
+[xouxou@web www]$ sudo systemctl list-timers | grep "backup"
+Sun 2021-12-05 11:00:00 CET  18min left    n/a                          n/a         backup.timer                 backup.service
+
+
+
+mysqldump -u nextcloud -h 10.5.1.12 -P 3306 -D nextcloud
+```
+
+### Ecrire un script qui sauvegarde les données de la base de données MariaDB <a name="p4.5"></a>
+
+### Créer un service <a name="p4.6"></a>
+
+### Créer un timer <a name="p4.7"></a>
+
+
+
